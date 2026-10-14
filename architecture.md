@@ -9,7 +9,7 @@ Browser
   ├─ local demo mode: localStorage (this browser/device only)
   └─ configured mode: Supabase Auth → Postgres transactions table with RLS
              │
-             └─ Vite production build → Cloudflare Pages (or another static host)
+             └─ Vite production build → Cloudflare Workers static assets (or another static host)
 ```
 
 ## Runtime and data flow
@@ -21,6 +21,7 @@ Browser
 6. Recharts groups selected-month transactions by calendar day. The budget panel compares recorded category expenses against example monthly limits defined in the UI.
 
 ## Persistence and privacy
+- The production build is served as Cloudflare Worker static assets from `dist`, configured in `wrangler.jsonc`; Git builds run `npm run build` followed by `npx wrangler deploy`.
 - In Supabase mode, records sync for the same authenticated account across devices. RLS policies are defined in `supabase/schema.sql`.
 - In demo mode, localStorage remains local to each browser/device. Clearing browser site data removes the local copy.
 - CSV export is available as a backup. The app does not yet import existing localStorage records into Supabase.

@@ -2,7 +2,7 @@
 
 The app can be published as a static site. After deployment, open its HTTPS URL on your phone or any other device.
 
-## Full setup: Supabase + Git + Cloudflare Pages
+## Full setup: Supabase + Git + Cloudflare Workers
 
 The app supports two modes: without Supabase credentials it uses demo/local browser storage; with Supabase credentials it requires sign-in and reads/writes each user's transactions in Supabase. The database schema and row-level security policies are in `supabase/schema.sql`.
 
@@ -41,8 +41,8 @@ Open the Vite URL shown in the terminal, normally `http://localhost:5173`. Creat
 In Supabase, open **Authentication → URL Configuration**:
 
 - During local development, set **Site URL** to `http://localhost:5173` and add `http://localhost:5173/**` to **Redirect URLs**.
-- After the first Cloudflare deployment, change **Site URL** to the exact production `https://<project>.pages.dev` URL and add that exact URL (or `https://<project>.pages.dev/**`) to **Redirect URLs**.
-- If you use Cloudflare preview deployments for signup links, add a narrowly scoped Pages preview pattern such as `https://<project>-*.pages.dev/**`, then verify it matches your actual preview URLs.
+- After the first Cloudflare deployment, change **Site URL** to the exact production `https://<worker>.<account>.workers.dev` URL and add that exact URL (or `https://<worker>.<account>.workers.dev/**`) to **Redirect URLs**.
+- If you use Cloudflare preview deployments for signup links, add the preview URL shown in Cloudflare to **Redirect URLs**.
 
 The Site URL is used for email confirmations when the app does not specify a redirect URL. Supabase recommends using the exact production URL and allowing local/preview URLs separately.
 
@@ -61,18 +61,19 @@ git push -u origin main
 
 If `git remote -v` already shows the correct repository, skip `git remote add origin ...`. `.gitignore` excludes `node_modules`, `dist`, and `.env*` (except `.env.example`); check `git status` before pushing to ensure credentials are not staged.
 
-### 5. Deploy from GitHub/GitLab to Cloudflare Pages
+### 5. Deploy from GitHub to Cloudflare Workers
 
-1. In Cloudflare, open **Workers & Pages → Create application → Pages → Connect to Git** and authorize access to the repository.
+1. In Cloudflare, open **Workers & Pages → Create application → Connect GitHub** and authorize access to this repository.
 2. Select this repository and use the following settings:
    - **Production branch:** `main`
    - **Build command:** `npm run build`
-   - **Build output directory:** `dist`
+   - **Deploy command:** `npx wrangler deploy`
    - **Root directory:** `/`
-3. Add these two variables in the Pages project build environment for both **Production** and **Preview**:
+   - Keep `wrangler.jsonc` in the repository; it configures `dist` as the static asset directory and enables single-page-app fallback routing.
+3. Add these two variables in **Settings → Builds → Variables and secrets** for the **Production** build:
    - `VITE_SUPABASE_URL` = your Supabase Project URL
    - `VITE_SUPABASE_PUBLISHABLE_KEY` = your Supabase Publishable key
-4. Save and deploy. Cloudflare builds and publishes the site at `https://<project>.pages.dev`.
+4. Save and deploy. Enable the `workers.dev` subdomain under **Settings → Domains & Routes**. Cloudflare then publishes the site at `https://<worker>.<account>.workers.dev`.
 5. Copy the production URL back to the Supabase **Site URL** and **Redirect URLs** settings above.
 6. Open the production URL on your phone and sign in using the same email/password account. Your records are stored in Supabase, so the same account can access them on other devices.
 
@@ -84,7 +85,7 @@ Supabase mode starts with the database records; it does not automatically migrat
 
 The Supabase publishable key is visible in the built web app by design. The SQL enables RLS so signed-in users can only access rows with their own `user_id`. **Never put a Supabase secret key or `service_role` key in a `VITE_` variable or in this frontend.**
 
-## Cloudflare Pages (recommended)
+## Cloudflare Pages alternative
 
 This project is a Vite static site. Use these build settings in Cloudflare Pages:
 
