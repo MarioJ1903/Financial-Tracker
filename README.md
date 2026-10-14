@@ -233,4 +233,4 @@ Belum ada lisensi open-source yang ditetapkan. Tambahkan file `LICENSE` sebelum 
 
 ## Palet visual
 
-Tema antarmuka memakai warna keuangan yang tenang: Forest `#315846` untuk identitas dan saldo positif, Sage `#527A64` untuk pemasukan serta grafik, Terracotta lembut `#8A5147` untuk pengeluaran, Warm Neutral `#F3F5F1` sebagai latar, dan Pale Sage `#DCE7DE` untuk permukaan penekanan. Abu-hijau `#526B60` menjaga keterbacaan label sekunder.
+Tema memakai satu keluarga warna sage dan forest agar seluruh dashboard terasa harmonis: Forest #405B4D untuk identitas dan teks utama, Sage #527A64 untuk aksi dan pemasukan, Sage muted #7F8F80 untuk pengeluaran dan grafik pembanding, Pale Sage #DDE6DC untuk kartu penekanan, serta Warm Neutral #F3F5F0 sebagai latar. Perbedaan pemasukan dan pengeluaran tetap terlihat melalui kontras tingkat warna dan ikon, tanpa aksen warna yang menyolok.
