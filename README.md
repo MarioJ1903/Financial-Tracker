@@ -15,6 +15,7 @@ RuangDana adalah aplikasi web responsif untuk mencatat pemasukan dan pengeluaran
 - Tambah, cari, filter, ekspor CSV, dan hapus transaksi individual.
 - Halaman Insight dengan perbandingan pemasukan/pengeluaran per bulan, komposisi pengeluaran, rasio tabungan, dan ringkasan tahunan.
 - Pengaturan profil, mata uang (IDR, USD, SGD, MYR), anggaran keseluruhan, dan batas per kategori.
+- Halaman Pusat Bantuan dengan email pengelola dan form kritik/saran yang menyiapkan draft email pengguna.
 - Saldo tabungan berjalan: tetapkan saldo awal dan tanggal acuannya; pemasukan setelah tanggal itu menambah estimasi dan pengeluaran menguranginya.
 - Autentikasi email/password Supabase. Beberapa akun dapat digunakan bergantian dalam browser; password tidak disimpan sebagai daftar akun.
 - Supabase Row Level Security (RLS) membatasi transaksi dan preferensi ke pemilik akun.
