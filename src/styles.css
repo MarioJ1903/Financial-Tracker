@@ -57,3 +57,8 @@ body,.app-shell,.main-content,.page-wrap{background:#F3F5F0;color:#405B4D}
 .error-alert,.button-danger,.danger-icon{background:#E8EEE7;border-color:#C8D4C8;color:#405B4D}.button-danger:hover,.delete-row:hover{background:#527A64;color:#FBFAF6}.delete-row{color:#5A6F61}
 .success-alert{background:#DDE6DC;border-color:#BFCDBF;color:#405B4D}.data-notice,.demo-notice,.savings-explainer,.savings-formula,.budget-panel,.insight-note,.chart-insight{background:#EEF2EB;border-color:#CFD9CE;color:#405B4D}
 .error-alert{background:#EEF2EB;color:#405B4D}.expense-icon{background:#E8EEE7;color:#5A6F61}
+/* Savings balance highlight: forest tone with legible white text */
+.stat-card.savings-card{background:#405B4D!important;background-image:none!important;border-color:#405B4D!important;color:#FFFFFF!important;box-shadow:0 8px 22px #405B4D24}
+.stat-card.savings-card .stat-label,.stat-card.savings-card .stat-value,.stat-card.savings-card .stat-foot{color:#FFFFFF!important}
+.stat-card.savings-card .savings-icon{background:#DDE6DC!important;color:#405B4D!important}
+.stat-card.savings-card .savings-orb{border-color:#FFFFFF30!important}
