@@ -233,4 +233,4 @@ Belum ada lisensi open-source yang ditetapkan. Tambahkan file `LICENSE` sebelum 
 
 ## Palet visual
 
-Antarmuka memakai palet Marshmallow Fluff: Marshmallow Fluff #f8edd8 untuk latar terang, Panic Yellow #f2d48d untuk permukaan sekunder, Lavender Haze #c8a7d8 untuk garis dan aksen lembut, Grape Soda #8d5aae untuk aksi utama dan pengeluaran, serta Expired Matcha #486250 untuk teks utama dan pemasukan. Pasangan warna dipilih agar label, nilai, dan keterangan tetap terbaca.
+Tema antarmuka memakai warna keuangan yang tenang: Forest `#315846` untuk identitas dan saldo positif, Sage `#527A64` untuk pemasukan serta grafik, Terracotta lembut `#8A5147` untuk pengeluaran, Warm Neutral `#F3F5F1` sebagai latar, dan Pale Sage `#DCE7DE` untuk permukaan penekanan. Abu-hijau `#526B60` menjaga keterbacaan label sekunder.
