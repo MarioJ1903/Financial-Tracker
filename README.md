@@ -13,10 +13,20 @@ RuangDana adalah aplikasi web responsif untuk mencatat pemasukan dan pengeluaran
 - Tambah, cari, filter, ekspor CSV, dan hapus transaksi individual.
 - Halaman Insight dengan perbandingan pemasukan/pengeluaran per bulan, komposisi pengeluaran, rasio tabungan, dan ringkasan tahunan.
 - Pengaturan profil, mata uang (IDR, USD, SGD, MYR), anggaran keseluruhan, dan batas per kategori.
+- Saldo tabungan berjalan: tetapkan saldo awal dan tanggal acuannya; pemasukan setelah tanggal itu menambah estimasi dan pengeluaran menguranginya.
 - Autentikasi email/password Supabase. Beberapa akun dapat digunakan bergantian dalam browser; password tidak disimpan sebagai daftar akun.
 - Supabase Row Level Security (RLS) membatasi transaksi dan preferensi ke pemilik akun.
 - Tampilan responsif yang dapat dibuka dari desktop dan browser ponsel.
 - Mode demo tanpa kredensial Supabase; data demo tersimpan di `localStorage` browser itu saja.
+
+### Panduan kategori transaksi
+
+Kategori berubah sesuai jenis transaksi agar pemasukan dan pengeluaran tidak tercampur:
+
+- **Pengeluaran:** Makanan & Minuman, Belanja Rumah Tangga, Transportasi, Tagihan & Utilitas, Hunian, Kesehatan, Pendidikan, Hiburan & Rekreasi, Perawatan Diri, Keluarga & Sosial, Biaya Keuangan, Pajak, dan Lainnya.
+- **Pemasukan:** Gaji, Freelance / Proyek, Usaha, Bonus & Komisi, Investasi, Hadiah, Refund, dan Lainnya.
+
+Contoh: kopi atau makan siang dicatat sebagai **Makanan & Minuman**; belanja kebutuhan rumah sebagai **Belanja Rumah Tangga**. **Freelance / Proyek** dipisahkan dari **Gaji** karena sumber penghasilan dan pola pencatatannya berbeda, walaupun keduanya merupakan pekerjaan.
 
 ## Teknologi dan peran
 
@@ -45,7 +55,7 @@ Browser / React
 GitHub main → Cloudflare Workers Builds → npm run build → npx wrangler deploy
 ```
 
-Transaksi disimpan di `public.transactions`. Preferensi disimpan per pengguna di `public.user_settings`. Analitik dihitung dari record transaksi yang dimuat; angka insight bukan data eksternal atau prediksi. Pada mode Supabase, akun yang sama dapat membuka data yang sama di perangkat berbeda.
+Transaksi disimpan di `public.transactions`. Preferensi termasuk mata uang, anggaran, dan saldo tabungan awal disimpan per pengguna di `public.user_settings`. Estimasi tabungan dihitung sebagai saldo awal ditambah semua pemasukan dan dikurangi semua pengeluaran sejak tanggal acuan; ini bukan integrasi saldo rekening bank. Analitik dihitung dari record transaksi yang dimuat; angka insight bukan data eksternal atau prediksi. Pada mode Supabase, akun yang sama dapat membuka data yang sama di perangkat berbeda.
 
 ## Prasyarat
 
@@ -106,7 +116,7 @@ npm run preview  # sajikan build lokal untuk ditinjau
 Schema dan RLS disimpan sebagai SQL yang dapat ditinjau di folder [`supabase/`](./supabase/):
 
 - `schema.sql`: tabel transaksi, tabel preferensi, index, grant, dan kebijakan RLS.
-- `user-settings-migration.sql`: migrasi tambahan untuk project yang tabel transaksinya sudah ada sebelum fitur pengaturan.
+- `user-settings-migration.sql`: migrasi tambahan untuk project yang tabel transaksinya sudah ada sebelum fitur pengaturan/tabungan.
 
 Setiap record transaksi memiliki `user_id`; default database mengisinya dari `auth.uid()`. Kebijakan RLS membatasi setiap akun agar hanya dapat membaca, menambah, mengubah, atau menghapus record miliknya. Tabel preferensi memakai `user_id` sebagai primary key dan memiliki kebijakan serupa.
 
@@ -191,6 +201,7 @@ Buka URL HTTPS Worker menggunakan browser ponsel dan login dengan akun Supabase 
 - Preferensi di mode demo disimpan lokal pada browser. Sinkronisasi antarperangkat hanya tersedia dalam mode Supabase.
 - Belum ada laporan PDF, transaksi berulang, notifikasi anggaran, reset password khusus di UI, atau audit log.
 - Anggaran adalah batas manual. Insight bersifat deskriptif dari transaksi yang tercatat dan tidak mengklasifikasikan/memprediksi otomatis.
+- Saldo tabungan adalah estimasi arus kas berdasarkan seluruh transaksi sejak tanggal acuan. Jika pengeluaran berasal dari rekening lain atau tidak boleh mengurangi tabungan, model beberapa rekening/sumber dana perlu dikembangkan terlebih dahulu.
 
 ## Roadmap pengembangan
 

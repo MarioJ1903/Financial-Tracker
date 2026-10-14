@@ -5,8 +5,13 @@ create table if not exists public.user_settings (
   currency text not null default 'IDR' check (currency in ('IDR', 'USD', 'SGD', 'MYR')),
   monthly_budget bigint not null default 6000000 check (monthly_budget >= 0),
   category_budgets jsonb not null default '{}'::jsonb,
+  savings_opening_balance bigint not null default 0 check (savings_opening_balance >= 0),
+  savings_start_date date not null default current_date,
   updated_at timestamptz not null default now()
 );
+
+alter table public.user_settings add column if not exists savings_opening_balance bigint not null default 0 check (savings_opening_balance >= 0);
+alter table public.user_settings add column if not exists savings_start_date date not null default current_date;
 
 alter table public.user_settings enable row level security;
 drop policy if exists "Users manage own settings" on public.user_settings;
