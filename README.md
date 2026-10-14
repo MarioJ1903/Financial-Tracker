@@ -230,3 +230,7 @@ Roadmap adalah usulan; implementasikan berdasarkan kebutuhan dan umpan balik pen
 ## Lisensi
 
 Belum ada lisensi open-source yang ditetapkan. Tambahkan file `LICENSE` sebelum mengizinkan penggunaan ulang kode secara publik.
+
+## Palet visual
+
+Antarmuka memakai palet Marshmallow Fluff: Marshmallow Fluff #f8edd8 untuk latar terang, Panic Yellow #f2d48d untuk permukaan sekunder, Lavender Haze #c8a7d8 untuk garis dan aksen lembut, Grape Soda #8d5aae untuk aksi utama dan pengeluaran, serta Expired Matcha #486250 untuk teks utama dan pemasukan. Pasangan warna dipilih agar label, nilai, dan keterangan tetap terbaca.
