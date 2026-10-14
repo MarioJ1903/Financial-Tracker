@@ -9,7 +9,7 @@ The app supports two modes: without Supabase credentials it uses demo/local brow
 ### 1. Create the Supabase project and table
 
 1. Create a project in the Supabase Dashboard and wait for its database to be ready.
-2. Open **SQL Editor → New query**, paste the contents of `supabase/schema.sql`, and run it. This creates the transactions table, indexes, grants, and per-user row-level security policies.
+2. Open **SQL Editor → New query**, paste the contents of `supabase/schema.sql`, and run it. This creates the transactions table, preferences table, indexes, grants, and per-user row-level security policies. If the app was already deployed before the preferences feature was added, run `supabase/user-settings-migration.sql` in SQL Editor as well.
 3. Open **Project Settings → API Keys** (or the project Connect dialog) and copy the **Project URL** and **Publishable key**. The browser app only needs the publishable key. If an older project shows an `anon` key instead, that legacy public key is also supported by this app.
 
 ### 2. Configure local development
