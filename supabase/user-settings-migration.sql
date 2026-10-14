@@ -20,3 +20,6 @@ create policy "Users manage own settings"
   using ((select auth.uid()) = user_id)
   with check ((select auth.uid()) = user_id);
 grant select, insert, update, delete on public.user_settings to authenticated;
+
+-- Ask Supabase's REST API to refresh its database schema cache.
+notify pgrst, 'reload schema';

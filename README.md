@@ -4,6 +4,8 @@ RuangDana adalah aplikasi web responsif untuk mencatat pemasukan dan pengeluaran
 
 **Production:** [Buka RuangDana](https://financial-tracker.mariojoshua-1903.workers.dev) · **Bahasa UI:** Indonesia · **Mata uang awal:** IDR
 
+**Pusat bantuan / kontak:** [mariojoshua.1903@gmail.com](mailto:mariojoshua.1903@gmail.com?subject=Bantuan%20RuangDana)
+
 > RuangDana mencatat transaksi secara manual. Aplikasi ini tidak terhubung ke rekening bank dan bukan alat nasihat keuangan.
 
 ## Fitur saat ini
