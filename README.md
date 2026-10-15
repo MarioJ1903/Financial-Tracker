@@ -12,7 +12,7 @@ RuangDana adalah aplikasi web responsif untuk mencatat pemasukan dan pengeluaran
 
 - Ringkasan pemasukan, pengeluaran, dan saldo bersih dengan pemilih bulan.
 - Grafik arus kas harian dan anggaran bulanan serta kategori.
-- Tambah, cari, filter, ekspor CSV, dan hapus transaksi individual.
+- Tambah, cari, filter, ekspor CSV, impor CSV/XLSX dengan pratinjau dan validasi, serta hapus transaksi individual.
 - Halaman Insight dengan perbandingan pemasukan/pengeluaran per bulan, komposisi pengeluaran, rasio tabungan, dan ringkasan tahunan.
 - Pengaturan profil, mata uang (IDR, USD, SGD, MYR), anggaran keseluruhan, dan batas per kategori.
 - Halaman Pusat Bantuan dengan email pengelola dan form kritik/saran yang menyiapkan draft email pengguna.
@@ -201,7 +201,7 @@ Buka URL HTTPS Worker menggunakan browser ponsel dan login dengan akun Supabase 
 ## Batasan saat ini
 
 - Transaksi dimasukkan manual; tidak ada integrasi bank atau sinkronisasi otomatis rekening.
-- CSV dapat diekspor, tetapi belum tersedia fitur impor CSV atau migrasi otomatis dari `localStorage` ke Supabase.
+- CSV dapat diekspor dan CSV/XLSX dapat diimpor setelah pratinjau, validasi, dan deduplikasi sederhana. Impor membaca tanggal, nama, jenis, jumlah, serta kategori opsional dari lembar pertama. Migrasi otomatis dari `localStorage` browser lama ke Supabase belum tersedia.
 - Transaksi dapat dihapus, tetapi belum dapat diedit setelah disimpan.
 - Browser hanya memiliki satu sesi Supabase aktif pada satu waktu. Daftar akun yang dikenal menyimpan alamat email saja; beralih akun memerlukan autentikasi ulang.
 - Preferensi di mode demo disimpan lokal pada browser. Sinkronisasi antarperangkat hanya tersedia dalam mode Supabase.
