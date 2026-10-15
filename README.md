@@ -16,7 +16,7 @@ RuangDana adalah aplikasi web responsif untuk mencatat pemasukan dan pengeluaran
 - Halaman Insight dengan perbandingan pemasukan/pengeluaran per bulan, komposisi pengeluaran, rasio tabungan, dan ringkasan tahunan.
 - Pengaturan profil, mata uang (IDR, USD, SGD, MYR), anggaran keseluruhan, dan batas per kategori.
 - Halaman Pusat Bantuan dengan email pengelola dan form kritik/saran yang menyiapkan draft email pengguna.
-- Saldo tabungan berjalan: tetapkan saldo awal dan tanggal acuannya; pemasukan setelah tanggal itu menambah estimasi dan pengeluaran menguranginya.
+- Saldo tabungan berjalan: tanggal acuan saldo awal otomatis diisi tanggal 1 bulan ini dan dapat diubah pengguna. Pemasukan/pengeluaran sejak tanggal acuan memperbarui estimasi secara kumulatif; tanggal acuan bukan reset saldo bulanan.
 - Autentikasi email/password Supabase. Beberapa akun dapat digunakan bergantian dalam browser; password tidak disimpan sebagai daftar akun.
 - Pemulihan password mandiri melalui email Supabase dan halaman untuk menetapkan password baru.
 - Supabase Row Level Security (RLS) membatasi transaksi dan preferensi ke pemilik akun.
@@ -59,7 +59,7 @@ Browser / React
 GitHub main → Cloudflare Workers Builds → npm run build → npx wrangler deploy
 ```
 
-Transaksi disimpan di `public.transactions`. Preferensi termasuk mata uang, anggaran, dan saldo tabungan awal disimpan per pengguna di `public.user_settings`. Estimasi tabungan dihitung sebagai saldo awal ditambah semua pemasukan dan dikurangi semua pengeluaran sejak tanggal acuan; ini bukan integrasi saldo rekening bank. Analitik dihitung dari record transaksi yang dimuat; angka insight bukan data eksternal atau prediksi. Pada mode Supabase, akun yang sama dapat membuka data yang sama di perangkat berbeda.
+Transaksi disimpan di `public.transactions`. Preferensi termasuk mata uang, anggaran, dan saldo tabungan awal disimpan per pengguna di `public.user_settings`. Tanggal acuan saldo awal secara bawaan adalah tanggal 1 bulan ini (tanggal tersimpan milik pengguna tetap dipertahankan), dan pengguna dapat mengubahnya. Estimasi tabungan dihitung sebagai saldo awal ditambah semua pemasukan dan dikurangi semua pengeluaran sejak tanggal acuan; tanggal acuan bukan reset saldo tiap bulan dan ini bukan integrasi saldo rekening bank. Analitik dihitung dari record transaksi yang dimuat; angka insight bukan data eksternal atau prediksi. Pada mode Supabase, akun yang sama dapat membuka data yang sama di perangkat berbeda.
 
 ## Prasyarat
 
