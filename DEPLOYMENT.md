@@ -48,7 +48,21 @@ The Site URL is used for email confirmations when the app does not specify a red
 
 The sign-in screen includes **Lupa password?**. The user enters their account email, opens the recovery link from that inbox, then sets and confirms a new password in the app. The reset email redirects to the current site origin, so both the local URL and production Worker URL must be listed under **Redirect URLs**. Supabase's built-in email sender is suitable for initial testing, but has a low rate limit; configure custom SMTP before relying on password-reset emails for multiple users.
 
-### 4. Save the project in Git
+### 4. Configure signup email delivery
+
+The app creates accounts with Supabase Auth (`signUp`). If email confirmation is enabled, a new user must open the confirmation link before signing in. Supabase's built-in sender is intended for testing: it has a low project-wide rate limit and may only deliver to authorized addresses. If signup reports an email rate limit or an unauthorized recipient, this is an Auth email-delivery setting, not a reason to disable RLS or expose a secret key.
+
+For real users, configure a transactional email provider in Supabase **Authentication → Emails → SMTP Settings** (the label may appear under **Project Settings → Auth → SMTP Settings** depending on the dashboard version):
+
+1. Verify a sending domain with an email provider and create SMTP credentials there.
+2. Enable custom SMTP in Supabase and enter the provider's host, port, username, password, sender email, and sender name.
+3. Save the settings, then check Supabase **Authentication → Rate Limits** if email delivery is still restricted.
+4. Keep the SMTP password only in the Supabase dashboard; never add it to frontend variables, Git, or Cloudflare build variables.
+5. Test signup with an inbox you control, then open the confirmation link and sign in. Do not repeatedly retry while rate limited; wait for the quota window or use the configured SMTP provider.
+
+The signup form now displays clearer messages for email throttling, unauthorized recipients, and existing accounts, and always clears its loading state after a failed request. It does not bypass Supabase confirmation or delivery restrictions.
+
+### 5. Save the project in Git
 
 Create an empty GitHub or GitLab repository first. Then, in PowerShell at the project root, set your actual repository URL and push the first commit:
 
@@ -63,7 +77,7 @@ git push -u origin main
 
 If `git remote -v` already shows the correct repository, skip `git remote add origin ...`. `.gitignore` excludes `node_modules`, `dist`, and `.env*` (except `.env.example`); check `git status` before pushing to ensure credentials are not staged.
 
-### 5. Deploy from GitHub to Cloudflare Workers
+### 6. Deploy from GitHub to Cloudflare Workers
 
 1. In Cloudflare, open **Workers & Pages → Create application → Connect GitHub** and authorize access to this repository.
 2. Select this repository and use the following settings:
@@ -81,7 +95,7 @@ If `git remote -v` already shows the correct repository, skip `git remote add or
 
 When credentials change in Cloudflare, trigger a new deployment because Vite embeds `VITE_` variables into the static build. Future Git pushes to `main` deploy automatically. Preview branches can have their own Cloudflare URLs.
 
-### 6. Protect existing local records
+### 7. Protect existing local records
 
 Supabase mode starts with the database records; it does not automatically migrate any transactions already stored in a browser's localStorage. Export a CSV from the old local version before switching. Keep that export as a backup; the app currently has no CSV import screen.
 

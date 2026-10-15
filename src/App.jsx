@@ -104,7 +104,52 @@ function App() {
   const mostSpent=expenseCategories[0];const savingsRate=income>0?Math.round(balance/income*100):0
   function moveMonth(delta){let m=month+delta,y=year;if(m<0){m=11;y--}if(m>11){m=0;y++}setMonth(m);setYear(y)}
   function navigate(next){setPage(next);location.hash=next;setMobileNav(false)}
-  async function handleAuth(e){e.preventDefault();setAuthLoading(true);setAuthError('');setAuthMessage('');if(authMode==='recovery'){if(!email.trim()){setAuthError('Masukkan email akun terlebih dahulu.');setAuthLoading(false);return}const {error}=await supabase.auth.resetPasswordForEmail(email.trim(),{redirectTo:window.location.origin});if(error)setAuthError(error.message);else setAuthMessage('Jika email terdaftar, tautan pemulihan akan dikirim. Periksa inbox dan folder spam.')}else{const result=authMode==='signin'?await supabase.auth.signInWithPassword({email,password}):await supabase.auth.signUp({email,password});if(result.error)setAuthError(result.error.message);else if(authMode==='signup'&&!result.data.session)setAuthMessage('Akun berhasil dibuat. Periksa email untuk konfirmasi sebelum masuk.')}setAuthLoading(false)}
+  function friendlyAuthError(error, mode) {
+    const message = error?.message || 'Terjadi kesalahan saat menghubungi layanan autentikasi.'
+    if (/rate limit|email rate exceeded|too many requests/i.test(message)) return 'Pengiriman email Supabase sedang dibatasi. Tunggu hingga kuota tersedia atau atur SMTP khusus di Supabase.'
+    if (/email address not authorized|not authorized/i.test(message)) return 'Email ini belum dapat menerima email dari SMTP bawaan Supabase. Atur SMTP khusus di Supabase untuk mengirim email kepada pengguna.'
+    if (mode === 'signup' && /already registered|user already exists/i.test(message)) return 'Email ini sudah terdaftar. Silakan masuk atau gunakan fitur lupa password.'
+    return message
+  }
+
+  async function handleAuth(e) {
+    e.preventDefault()
+    setAuthLoading(true)
+    setAuthError('')
+    setAuthMessage('')
+    const normalizedEmail = email.trim().toLowerCase()
+
+    try {
+      if (!normalizedEmail) {
+        setAuthError('Masukkan alamat email terlebih dahulu.')
+        return
+      }
+      setEmail(normalizedEmail)
+
+      if (authMode === 'recovery') {
+        const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, { redirectTo: window.location.origin })
+        if (error) setAuthError(friendlyAuthError(error, authMode))
+        else setAuthMessage('Jika email terdaftar, tautan pemulihan akan dikirim. Periksa inbox dan folder spam.')
+        return
+      }
+
+      const result = authMode === 'signin'
+        ? await supabase.auth.signInWithPassword({ email: normalizedEmail, password })
+        : await supabase.auth.signUp({ email: normalizedEmail, password })
+
+      if (result.error) {
+        setAuthError(friendlyAuthError(result.error, authMode))
+      } else if (authMode === 'signup' && result.data.user?.identities?.length === 0) {
+        setAuthMessage('Email ini mungkin sudah memiliki akun. Coba masuk atau gunakan fitur lupa password.')
+      } else if (authMode === 'signup' && !result.data.session) {
+        setAuthMessage('Permintaan pendaftaran berhasil. Periksa email untuk konfirmasi sebelum masuk.')
+      }
+    } catch (error) {
+      setAuthError(friendlyAuthError(error, authMode))
+    } finally {
+      setAuthLoading(false)
+    }
+  }
   async function updateRecoveredPassword(e){e.preventDefault();setRecoveryError('');setRecoveryMessage('');if(newPassword!==confirmPassword){setRecoveryError('Konfirmasi password belum sama.');return}setRecoveryLoading(true);const {error}=await supabase.auth.updateUser({password:newPassword});if(error)setRecoveryError(error.message);else{setPasswordUpdated(true);setNewPassword('');setConfirmPassword('')}setRecoveryLoading(false)}
   async function finishPasswordRecovery(){const recoveryEmail=session?.user?.email||email;await supabase.auth.signOut();setRecoveryMode(false);setPasswordUpdated(false);setAuthMode('signin');setEmail(recoveryEmail);setPassword('');setAuthError('');setAuthMessage('Password berhasil diubah. Silakan masuk menggunakan password baru.');location.hash=''}
   async function handleSignOut(prefillEmail=session?.user?.email||''){await supabase.auth.signOut();setTransactions([]);setSettings(emptySettings);setPassword('');setEmail(prefillEmail);setAuthMode('signin')}
