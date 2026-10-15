@@ -18,6 +18,7 @@ RuangDana adalah aplikasi web responsif untuk mencatat pemasukan dan pengeluaran
 - Halaman Pusat Bantuan dengan email pengelola dan form kritik/saran yang menyiapkan draft email pengguna.
 - Saldo tabungan berjalan: tetapkan saldo awal dan tanggal acuannya; pemasukan setelah tanggal itu menambah estimasi dan pengeluaran menguranginya.
 - Autentikasi email/password Supabase. Beberapa akun dapat digunakan bergantian dalam browser; password tidak disimpan sebagai daftar akun.
+- Pemulihan password mandiri melalui email Supabase dan halaman untuk menetapkan password baru.
 - Supabase Row Level Security (RLS) membatasi transaksi dan preferensi ke pemilik akun.
 - Tampilan responsif yang dapat dibuka dari desktop dan browser ponsel.
 - Mode demo tanpa kredensial Supabase; data demo tersimpan di `localStorage` browser itu saja.
@@ -98,6 +99,8 @@ Transaksi disimpan di `public.transactions`. Preferensi termasuk mata uang, angg
 4. Buat tabel dan kebijakan database melalui Supabase **SQL Editor**. Untuk project baru, jalankan `supabase/schema.sql`. Untuk database lama yang sudah memiliki tabel transaksi, jalankan `supabase/user-settings-migration.sql` agar halaman Pengaturan dapat menyimpan preferensi.
 
 5. Di Supabase **Authentication → URL Configuration**, tambahkan `http://localhost:5173/**` ke daftar redirect saat pengembangan lokal. Aktifkan/konfirmasi email jika konfigurasi Auth project mengharuskannya.
+
+   Alur **Lupa password?** mengirim tautan ke email akun. Tautan itu mengarahkan kembali ke alamat aplikasi yang sedang dibuka; pastikan URL lokal dan URL Cloudflare yang dipakai sudah masuk daftar **Redirect URLs** di Supabase. Pengguna lalu memasukkan password baru dan konfirmasi password tersebut.
 
 6. Jalankan aplikasi:
 

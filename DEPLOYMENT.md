@@ -46,6 +46,8 @@ In Supabase, open **Authentication → URL Configuration**:
 
 The Site URL is used for email confirmations when the app does not specify a redirect URL. Supabase recommends using the exact production URL and allowing local/preview URLs separately.
 
+The sign-in screen includes **Lupa password?**. The user enters their account email, opens the recovery link from that inbox, then sets and confirms a new password in the app. The reset email redirects to the current site origin, so both the local URL and production Worker URL must be listed under **Redirect URLs**. Supabase's built-in email sender is suitable for initial testing, but has a low rate limit; configure custom SMTP before relying on password-reset emails for multiple users.
+
 ### 4. Save the project in Git
 
 Create an empty GitHub or GitLab repository first. Then, in PowerShell at the project root, set your actual repository URL and push the first commit:

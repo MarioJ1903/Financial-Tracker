@@ -23,7 +23,7 @@ const localPrefs = (id) => { try { const saved=JSON.parse(localStorage.getItem(`
 const iconFor = (category) => ({ 'Makanan & Minuman':'🍜','Belanja Rumah Tangga':'🛒',Transportasi:'🚕','Tagihan & Utilitas':'💡',Hunian:'🏠',Kesehatan:'💊',Pendidikan:'📚','Hiburan & Rekreasi':'🎬','Perawatan Diri':'🧴','Keluarga & Sosial':'🎁','Biaya Keuangan':'🏦',Pajak:'🧾',Gaji:'💼','Freelance / Proyek':'✦',Usaha:'🏪','Bonus & Komisi':'🎯',Investasi:'📈',Hadiah:'🎁',Refund:'↩️' }[category] || '✨')
 const normalizedCategory = (category,type) => ({Makanan:'Makanan & Minuman',Belanja:'Belanja Rumah Tangga',Tagihan:'Tagihan & Utilitas',Hiburan:'Hiburan & Rekreasi',...(type==='income'?{Pekerjaan:'Gaji',Freelance:'Freelance / Proyek'}:{})}[category]||category)
 
-function AuthScreen({ email, setEmail, password, setPassword, authMode, setAuthMode, handleAuth, authLoading, authError, authMessage, knownAccounts, onAddAccount }) {
+function AuthScreen({ email, setEmail, password, setPassword, authMode, setAuthMode, handleAuth, onForgotPassword, authLoading, authError, authMessage, knownAccounts, onAddAccount }) {
   return <main className="auth-screen"><form className="auth-card" onSubmit={handleAuth}>
     <a className="brand auth-brand" href="#top"><span className="brand-mark"><Wallet size={19}/></span><span>ruang<span className="brand-light">dana</span></span></a>
     <div className="eyebrow"><span/> DATA KEUANGAN PRIBADI</div><h1>{authMode === 'signin' ? 'Selamat datang' : 'Buat akun RuangDana'}</h1>
@@ -31,6 +31,7 @@ function AuthScreen({ email, setEmail, password, setPassword, authMode, setAuthM
     {knownAccounts.length > 0 && <label className="form-label">Akun di browser ini<select value={email} onChange={e=>setEmail(e.target.value)}><option value="">Pilih atau ketik email</option>{knownAccounts.map(a=><option key={a} value={a}>{a}</option>)}</select></label>}
     <label className="form-label">Email<input type="email" autoComplete="email" required placeholder="nama@email.com" value={email} onChange={e=>setEmail(e.target.value)}/></label>
     <label className="form-label">Password<input type="password" autoComplete={authMode === 'signin' ? 'current-password' : 'new-password'} minLength="6" required placeholder="Minimal 6 karakter" value={password} onChange={e=>setPassword(e.target.value)}/></label>
+    {authMode==='signin'&&<button type="button" className="forgot-password-link" disabled={authLoading} onClick={onForgotPassword}>Lupa password?</button>}
     {authError && <div className="auth-alert error-alert">{authError}</div>}{authMessage && <div className="auth-alert success-alert">{authMessage}</div>}
     <button className="button button-primary auth-submit" disabled={authLoading}>{authLoading ? 'Memproses…' : authMode === 'signin' ? 'Masuk' : 'Buat akun'}</button>
     <p className="auth-switch">{authMode === 'signin' ? 'Belum punya akun?' : 'Sudah punya akun?'} <button type="button" onClick={()=>setAuthMode(authMode === 'signin' ? 'signup' : 'signin')}>{authMode === 'signin' ? 'Daftar' : 'Masuk'}</button></p>
@@ -39,11 +40,25 @@ function AuthScreen({ email, setEmail, password, setPassword, authMode, setAuthM
   </form></main>
 }
 
+function PasswordRecoveryScreen({email,password,setPassword,confirmPassword,setConfirmPassword,error,message,loading,updated,onSubmit,onFinish}) {
+  return <main className="auth-screen"><form className="auth-card" onSubmit={onSubmit}>
+    <a className="brand auth-brand" href="#top"><span className="brand-mark"><Wallet size={19}/></span><span>ruang<span className="brand-light">dana</span></span></a>
+    <div className="eyebrow"><span/> PEMULIHAN AKUN</div><h1>{updated?'Password berhasil diubah':'Buat password baru'}</h1>
+    <p className="auth-subtitle">{updated?`Password untuk ${email} sudah diperbarui.`:'Gunakan password baru yang kuat dan tidak dipakai di akun lain.'}</p>
+    {!updated&&<><label className="form-label">Password baru<input type="password" autoComplete="new-password" minLength="6" required placeholder="Minimal 6 karakter" value={password} onChange={e=>setPassword(e.target.value)}/></label><label className="form-label">Ulangi password baru<input type="password" autoComplete="new-password" minLength="6" required placeholder="Ketik ulang password" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)}/></label></>}
+    {error&&<div className="auth-alert error-alert">{error}</div>}{message&&<div className="auth-alert success-alert">{message}</div>}
+    {updated?<button type="button" className="button button-primary auth-submit" onClick={onFinish}>Kembali ke halaman masuk</button>:<button className="button button-primary auth-submit" disabled={loading}>{loading?'Menyimpan…':'Simpan password baru'}</button>}
+    <small className="auth-privacy">Tautan pemulihan hanya berlaku untuk akun yang meminta perubahan ini.</small>
+  </form></main>
+}
+
 function App() {
   const [transactions, setTransactions] = useState(() => hasSupabaseConfig ? [] : localTransactions())
   const [session, setSession] = useState(null); const [authReady, setAuthReady] = useState(!hasSupabaseConfig)
   const [authLoading, setAuthLoading] = useState(false); const [authError, setAuthError] = useState(''); const [authMessage, setAuthMessage] = useState('')
   const [authMode, setAuthMode] = useState('signin'); const [email, setEmail] = useState(''); const [password, setPassword] = useState('')
+  const [recoveryMode,setRecoveryMode]=useState(()=>new URLSearchParams(location.hash.slice(1)).get('type')==='recovery');const [newPassword,setNewPassword]=useState('');const [confirmPassword,setConfirmPassword]=useState('');const [passwordUpdated,setPasswordUpdated]=useState(false)
+  const [recoveryLoading,setRecoveryLoading]=useState(false);const [recoveryError,setRecoveryError]=useState('');const [recoveryMessage,setRecoveryMessage]=useState('')
   const [knownAccounts, setKnownAccounts] = useState(()=>{try{return JSON.parse(localStorage.getItem('ruangdana-accounts')||'[]')}catch{return []}})
   const [dataLoading, setDataLoading] = useState(false); const [dataError, setDataError] = useState('')
   const [settings, setSettings] = useState(()=>localPrefs('demo')); const [settingsMessage, setSettingsMessage] = useState('')
@@ -57,7 +72,7 @@ function App() {
   useEffect(()=>{
     if(!hasSupabaseConfig) return undefined
     supabase.auth.getSession().then(({data,error})=>{if(error)setAuthError(error.message);setSession(data?.session??null);setAuthReady(true)})
-    const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,next)=>{setSession(next);setAuthError('');setAuthMessage('')})
+    const {data:{subscription}}=supabase.auth.onAuthStateChange((event,next)=>{setSession(next);setAuthError('');setAuthMessage('');if(event==='PASSWORD_RECOVERY'){setRecoveryMode(true);setPasswordUpdated(false);setRecoveryError('')}if(event==='SIGNED_OUT')setRecoveryMode(false)})
     return ()=>subscription.unsubscribe()
   },[])
   useEffect(()=>{if(session?.user?.email){const next=[...new Set([session.user.email,...knownAccounts])];setKnownAccounts(next);localStorage.setItem('ruangdana-accounts',JSON.stringify(next))}},[session?.user?.email])
@@ -72,6 +87,7 @@ function App() {
     })
     return()=>{cancelled=true}
   },[session?.user?.id])
+  useEffect(()=>{if(hasSupabaseConfig&&authReady&&recoveryMode&&!session){setRecoveryMode(false);setAuthMode('signin');setAuthError('Tautan pemulihan tidak valid atau sudah kedaluwarsa. Minta tautan baru dan segera buka dari email.') }},[authReady,recoveryMode,session])
   useEffect(()=>{const onHash=()=>{const h=location.hash.slice(1);setPage(['insights','settings','help'].includes(h)?h:'overview')};window.addEventListener('hashchange',onHash);return()=>window.removeEventListener('hashchange',onHash)},[])
 
   const filteredMonth=useMemo(()=>transactions.filter(t=>{const d=new Date(`${t.date}T00:00:00`);return d.getMonth()===month&&d.getFullYear()===year}),[transactions,month,year])
@@ -89,6 +105,9 @@ function App() {
   function moveMonth(delta){let m=month+delta,y=year;if(m<0){m=11;y--}if(m>11){m=0;y++}setMonth(m);setYear(y)}
   function navigate(next){setPage(next);location.hash=next;setMobileNav(false)}
   async function handleAuth(e){e.preventDefault();setAuthLoading(true);setAuthError('');setAuthMessage('');const result=authMode==='signin'?await supabase.auth.signInWithPassword({email,password}):await supabase.auth.signUp({email,password});if(result.error)setAuthError(result.error.message);else if(authMode==='signup'&&!result.data.session)setAuthMessage('Akun berhasil dibuat. Periksa email untuk konfirmasi sebelum masuk.');setAuthLoading(false)}
+  async function requestPasswordReset(){setAuthError('');setAuthMessage('');if(!email.trim()){setAuthError('Masukkan email akun terlebih dahulu.');return}setAuthLoading(true);const {error}=await supabase.auth.resetPasswordForEmail(email.trim(),{redirectTo:window.location.origin});if(error)setAuthError(error.message);else setAuthMessage('Jika email terdaftar, tautan pemulihan akan dikirim. Periksa inbox dan folder spam.');setAuthLoading(false)}
+  async function updateRecoveredPassword(e){e.preventDefault();setRecoveryError('');setRecoveryMessage('');if(newPassword!==confirmPassword){setRecoveryError('Konfirmasi password belum sama.');return}setRecoveryLoading(true);const {error}=await supabase.auth.updateUser({password:newPassword});if(error)setRecoveryError(error.message);else{setPasswordUpdated(true);setNewPassword('');setConfirmPassword('')}setRecoveryLoading(false)}
+  async function finishPasswordRecovery(){const recoveryEmail=session?.user?.email||email;await supabase.auth.signOut();setRecoveryMode(false);setPasswordUpdated(false);setAuthMode('signin');setEmail(recoveryEmail);setPassword('');setAuthError('');setAuthMessage('Password berhasil diubah. Silakan masuk menggunakan password baru.');location.hash=''}
   async function handleSignOut(prefillEmail=session?.user?.email||''){await supabase.auth.signOut();setTransactions([]);setSettings(emptySettings);setPassword('');setEmail(prefillEmail);setAuthMode('signin')}
   async function addAccount(){await handleSignOut('');setAuthMode('signup');setEmail('');setAuthMessage('Masukkan email baru untuk menambahkan akun.')}
   async function saveTransaction(e){e.preventDefault();if(!form.name.trim()||Number(form.amount)<=0)return;const item={name:form.name.trim(),category:form.category,amount:Number(form.amount),type:form.type,date:form.date};if(hasSupabaseConfig){const {data,error}=await supabase.from('transactions').insert({name:item.name,category:item.category,amount:item.amount,type:item.type,transaction_date:item.date}).select('id').single();if(error){setDataError(`Transaksi gagal disimpan: ${error.message}`);return}item.id=data.id}else{item.id=crypto.randomUUID();const next=[item,...transactions];localStorage.setItem('ruangdana-transactions',JSON.stringify(next));localStorage.setItem(seedKey,'true')}setTransactions(curr=>[item,...curr]);setDataError('');setModal(false);setForm(f=>({...f,name:'',amount:''}))}
@@ -98,7 +117,8 @@ function App() {
   function sendFeedback(e){e.preventDefault();const values=new FormData(e.currentTarget);const subject=encodeURIComponent(`[RuangDana] ${values.get('type')}: ${values.get('subject')}`);const body=encodeURIComponent(`Nama: ${values.get('name')||'-'}\nEmail untuk balasan: ${values.get('reply')||'-'}\nJenis pesan: ${values.get('type')}\n\n${values.get('message')}`);window.location.href=`mailto:mariojoshua.1903@gmail.com?subject=${subject}&body=${body}`}
   function exportCsv(rows=filteredMonth){const data=[['Tanggal','Nama','Kategori','Tipe','Jumlah'],...rows.map(t=>[t.date,t.name,t.category,t.type,t.amount])];const csv=data.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));a.download=`ruangdana-${year}-${String(month+1).padStart(2,'0')}.csv`;a.click();URL.revokeObjectURL(a.href)}
   if(hasSupabaseConfig&&!authReady)return <main className="auth-screen"><div className="auth-loading">Menghubungkan ke RuangDana…</div></main>
-  if(hasSupabaseConfig&&!session)return <AuthScreen email={email} setEmail={setEmail} password={password} setPassword={setPassword} authMode={authMode} setAuthMode={setAuthMode} handleAuth={handleAuth} authLoading={authLoading} authError={authError} authMessage={authMessage} knownAccounts={knownAccounts} onAddAccount={addAccount}/>
+  if(hasSupabaseConfig&&recoveryMode&&session)return <PasswordRecoveryScreen email={session.user.email||email} password={newPassword} setPassword={setNewPassword} confirmPassword={confirmPassword} setConfirmPassword={setConfirmPassword} error={recoveryError} message={recoveryMessage} loading={recoveryLoading} updated={passwordUpdated} onSubmit={updateRecoveredPassword} onFinish={finishPasswordRecovery}/>
+  if(hasSupabaseConfig&&!session)return <AuthScreen email={email} setEmail={setEmail} password={password} setPassword={setPassword} authMode={authMode} setAuthMode={setAuthMode} handleAuth={handleAuth} onForgotPassword={requestPasswordReset} authLoading={authLoading} authError={authError} authMessage={authMessage} knownAccounts={knownAccounts} onAddAccount={addAccount}/>
 
   const nav=[['overview','Ringkasan',LayoutDashboard],['transactions','Transaksi',ArrowLeftRight],['insights','Insight',BarChart3],['settings','Pengaturan',Settings],['help','Pusat bantuan',CircleHelp]]
   return <div className="app-shell">
