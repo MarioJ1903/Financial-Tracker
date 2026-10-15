@@ -23,19 +23,26 @@ const localPrefs = (id) => { try { const saved=JSON.parse(localStorage.getItem(`
 const iconFor = (category) => ({ 'Makanan & Minuman':'🍜','Belanja Rumah Tangga':'🛒',Transportasi:'🚕','Tagihan & Utilitas':'💡',Hunian:'🏠',Kesehatan:'💊',Pendidikan:'📚','Hiburan & Rekreasi':'🎬','Perawatan Diri':'🧴','Keluarga & Sosial':'🎁','Biaya Keuangan':'🏦',Pajak:'🧾',Gaji:'💼','Freelance / Proyek':'✦',Usaha:'🏪','Bonus & Komisi':'🎯',Investasi:'📈',Hadiah:'🎁',Refund:'↩️' }[category] || '✨')
 const normalizedCategory = (category,type) => ({Makanan:'Makanan & Minuman',Belanja:'Belanja Rumah Tangga',Tagihan:'Tagihan & Utilitas',Hiburan:'Hiburan & Rekreasi',...(type==='income'?{Pekerjaan:'Gaji',Freelance:'Freelance / Proyek'}:{})}[category]||category)
 
-function AuthScreen({ email, setEmail, password, setPassword, authMode, setAuthMode, handleAuth, onForgotPassword, authLoading, authError, authMessage, knownAccounts, onAddAccount }) {
+function AuthScreen({ email, setEmail, password, setPassword, authMode, setAuthMode, handleAuth, onForgotPassword, authLoading, authError, authMessage, setAuthError, setAuthMessage, knownAccounts, onAddAccount }) {
   const isRecoveryRequest=authMode==='recovery'
+  function switchAuthMode() {
+    if (authLoading) return
+    setAuthError('')
+    setAuthMessage('')
+    setPassword('')
+    setAuthMode(isRecoveryRequest || authMode === 'signup' ? 'signin' : 'signup')
+  }
   return <main className="auth-screen"><form className="auth-card" onSubmit={handleAuth}>
     <a className="brand auth-brand" href="#top"><span className="brand-mark"><Wallet size={19}/></span><span>ruang<span className="brand-light">dana</span></span></a>
     <div className="eyebrow"><span/> {isRecoveryRequest?'PEMULIHAN AKUN':'DATA KEUANGAN PRIBADI'}</div><h1>{isRecoveryRequest?'Reset password':authMode === 'signin' ? 'Selamat datang' : 'Buat akun RuangDana'}</h1>
     <p className="auth-subtitle">{isRecoveryRequest?'Masukkan email akun. Password lama tidak diperlukan; kami akan mengirim tautan pemulihan.':'Masuk untuk menyimpan dan membuka transaksi di semua perangkatmu.'}</p>
     {!isRecoveryRequest&&knownAccounts.length > 0 && <label className="form-label">Akun di browser ini<select value={email} onChange={e=>setEmail(e.target.value)}><option value="">Pilih atau ketik email</option>{knownAccounts.map(a=><option key={a} value={a}>{a}</option>)}</select></label>}
-    <label className="form-label">Email<input type="email" autoComplete="email" required placeholder="nama@email.com" value={email} onChange={e=>setEmail(e.target.value)}/></label>
+    <label className="form-label">Email<input type="email" autoComplete="email" required placeholder="nama@email.com" value={email} onChange={e=>setEmail(e.target.value)}/>{authMode==='signup'&&<small className="auth-field-hint">Masukkan email yang dapat Anda buka. Email ini dipakai untuk konfirmasi akun.</small>}</label>
     {!isRecoveryRequest&&<><label className="form-label">Password<input type="password" autoComplete={authMode === 'signin' ? 'current-password' : 'new-password'} minLength="6" required placeholder="Minimal 6 karakter" value={password} onChange={e=>setPassword(e.target.value)}/></label>{authMode==='signin'&&<button type="button" className="forgot-password-link" disabled={authLoading} onClick={onForgotPassword}>Lupa password?</button>}</>}
     {authError && <div className="auth-alert error-alert">{authError}</div>}{authMessage && <div className="auth-alert success-alert">{authMessage}</div>}
     <button className="button button-primary auth-submit" disabled={authLoading}>{authLoading ? 'Memproses…' : isRecoveryRequest?'Kirim tautan pemulihan':authMode === 'signin' ? 'Masuk' : 'Buat akun'}</button>
-    <p className="auth-switch">{isRecoveryRequest?'Ingat password?':authMode === 'signin' ? 'Belum punya akun?' : 'Sudah punya akun?'} <button type="button" onClick={()=>{setAuthError('');setAuthMessage('');setAuthMode(isRecoveryRequest||authMode==='signup'?'signin':'signup')}}>{isRecoveryRequest||authMode==='signup'?'Kembali ke masuk': 'Daftar'}</button></p>
-    {authMode === 'signin' && knownAccounts.length > 0 && <button type="button" className="account-add-link" onClick={onAddAccount}><Users size={14}/> Tambahkan akun lain</button>}
+    <p className="auth-switch">{isRecoveryRequest?'Ingat password?':authMode === 'signin' ? 'Belum punya akun?' : 'Sudah punya akun?'} <button type="button" className="auth-switch-action" disabled={authLoading} onClick={switchAuthMode}>{isRecoveryRequest||authMode==='signup'?'Kembali ke masuk': 'Daftar'}</button></p>
+    {authMode === 'signin' && knownAccounts.length > 0 && <button type="button" className="account-add-link" disabled={authLoading} onClick={onAddAccount}><Users size={14}/> Tambahkan akun lain</button>}
     <small className="auth-privacy">Transaksi hanya dapat dibaca oleh akun yang membuatnya.</small>
   </form></main>
 }
@@ -162,7 +169,7 @@ function App() {
   function exportCsv(rows=filteredMonth){const data=[['Tanggal','Nama','Kategori','Tipe','Jumlah'],...rows.map(t=>[t.date,t.name,t.category,t.type,t.amount])];const csv=data.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));a.download=`ruangdana-${year}-${String(month+1).padStart(2,'0')}.csv`;a.click();URL.revokeObjectURL(a.href)}
   if(hasSupabaseConfig&&!authReady)return <main className="auth-screen"><div className="auth-loading">Menghubungkan ke RuangDana…</div></main>
   if(hasSupabaseConfig&&recoveryMode&&session)return <PasswordRecoveryScreen email={session.user.email||email} password={newPassword} setPassword={setNewPassword} confirmPassword={confirmPassword} setConfirmPassword={setConfirmPassword} error={recoveryError} message={recoveryMessage} loading={recoveryLoading} updated={passwordUpdated} onSubmit={updateRecoveredPassword} onFinish={finishPasswordRecovery}/>
-  if(hasSupabaseConfig&&!session)return <AuthScreen email={email} setEmail={setEmail} password={password} setPassword={setPassword} authMode={authMode} setAuthMode={setAuthMode} handleAuth={handleAuth} onForgotPassword={()=>{setAuthError('');setAuthMessage('');setAuthMode('recovery')}} authLoading={authLoading} authError={authError} authMessage={authMessage} knownAccounts={knownAccounts} onAddAccount={addAccount}/>
+  if(hasSupabaseConfig&&!session)return <AuthScreen email={email} setEmail={setEmail} password={password} setPassword={setPassword} authMode={authMode} setAuthMode={setAuthMode} handleAuth={handleAuth} onForgotPassword={()=>{setAuthError('');setAuthMessage('');setAuthMode('recovery')}} authLoading={authLoading} authError={authError} authMessage={authMessage} setAuthError={setAuthError} setAuthMessage={setAuthMessage} knownAccounts={knownAccounts} onAddAccount={addAccount}/>
 
   const nav=[['overview','Ringkasan',LayoutDashboard],['transactions','Transaksi',ArrowLeftRight],['insights','Insight',BarChart3],['settings','Pengaturan',Settings],['help','Pusat bantuan',CircleHelp]]
   return <div className="app-shell">
