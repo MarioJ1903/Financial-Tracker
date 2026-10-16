@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { ArrowDownLeft, ArrowUpRight, Bell, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Download, LayoutDashboard, LogOut, Menu, Plus, Search, Settings, Sparkles, Tag, Target, TrendingUp, Wallet, X, Trash2, BarChart3, Users, Save, Upload, FileSpreadsheet } from 'lucide-react'
+import { ArrowDownLeft, ArrowUpRight, Banknote, Bell, BriefcaseBusiness, Building2, Bus, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Download, GraduationCap, House, LayoutDashboard, LogOut, Menu, PiggyBank, Plus, Search, Settings, ShieldPlus, ShoppingBag, Sparkles, Tag, Target, Ticket, TrendingUp, Wallet, Wrench, X, Trash2, BarChart3, Users, Save, Upload, FileSpreadsheet } from 'lucide-react'
 import { hasSupabaseConfig, supabase } from './supabase'
 
 const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']
@@ -21,7 +21,10 @@ const seedKey = 'ruangdana-seeded-v1'
 const money = (amount, currency = 'IDR') => new Intl.NumberFormat('id-ID', { style: 'currency', currency, maximumFractionDigits: currency === 'IDR' ? 0 : 2 }).format(amount || 0)
 const localTransactions = () => { try { const saved = JSON.parse(localStorage.getItem('ruangdana-transactions') || 'null'); return (saved ?? (localStorage.getItem(seedKey) ? [] : starter)).map(t=>({...t,category:normalizedCategory(t.category,t.type)})) } catch { return starter } }
 const localPrefs = (id) => { try { const saved=JSON.parse(localStorage.getItem(`ruangdana-settings-${id || 'demo'}`)||'{}');return {...emptySettings,...saved,category_budgets:normalizeBudgets(saved.category_budgets)} } catch { return emptySettings } }
-const iconFor = (category) => ({ 'Makanan & Minuman':'🍜','Belanja Rumah Tangga':'🛒',Transportasi:'🚕','Tagihan & Utilitas':'💡',Hunian:'🏠',Kesehatan:'💊',Pendidikan:'📚','Hiburan & Rekreasi':'🎬','Perawatan Diri':'🧴','Keluarga & Sosial':'🎁','Biaya Keuangan':'🏦',Pajak:'🧾',Gaji:'💼','Freelance / Proyek':'✦',Usaha:'🏪','Bonus & Komisi':'🎯',Investasi:'📈',Hadiah:'🎁',Refund:'↩️' }[category] || '✨')
+const iconFor = (category) => {
+  const Icon = ({'Makanan & Minuman':ShoppingBag,'Belanja Rumah Tangga':ShoppingBag,Transportasi:Bus,'Tagihan & Utilitas':Banknote,Hunian:House,Kesehatan:ShieldPlus,Pendidikan:GraduationCap,'Hiburan & Rekreasi':Ticket,'Perawatan Diri':Wrench,'Keluarga & Sosial':Building2,'Biaya Keuangan':Building2,Pajak:Banknote,Gaji:BriefcaseBusiness,'Freelance / Proyek':BriefcaseBusiness,Usaha:Building2,'Bonus & Komisi':Banknote,Investasi:TrendingUp,Hadiah:Ticket,Refund:ArrowDownLeft}[category]||Wallet)
+  return <Icon size={16} strokeWidth={1.9} aria-hidden="true"/>
+}
 const normalizedCategory = (category,type) => ({Makanan:'Makanan & Minuman',Belanja:'Belanja Rumah Tangga',Tagihan:'Tagihan & Utilitas',Hiburan:'Hiburan & Rekreasi',...(type==='income'?{Pekerjaan:'Gaji',Freelance:'Freelance / Proyek'}:{})}[category]||category)
 const normalizeImportHeader = (value) => String(value??'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ')
 const importHeaderAliases = {
